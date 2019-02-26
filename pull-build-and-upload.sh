@@ -18,7 +18,7 @@ sh inject-version.sh && \
 sh build-and-upload.sh $PORT_NAME && \
 
 # Revert the sketch file to avoid git merge conflicts
-git checkout src/SoilMoistureSensorCalibratedPump/SoilMoistureSensorCalibratedPump.ino && \
+git checkout src/SoilMoistureI2CSensorCalibratedPump/SoilMoistureI2CSensorCalibratedPump.ino && \
 
 echo "Pull, build, and upload complete."
 

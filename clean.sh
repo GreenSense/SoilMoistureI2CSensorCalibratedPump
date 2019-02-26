@@ -1,5 +1,5 @@
 #pio run --target clean
 
-SOURCE_FILE="src/SoilMoistureSensorCalibratedPump/SoilMoistureSensorCalibratedPump.ino"
+SOURCE_FILE="src/SoilMoistureI2CSensorCalibratedPump/SoilMoistureI2CSensorCalibratedPump.ino"
 
 sed -i "s/#define VERSION .*/#define VERSION \"1-0-0-0\"/" $SOURCE_FILE

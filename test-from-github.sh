@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo ""
-echo "Testing SoilMoistureSensorCalibratedPump project from github"
+echo "Testing SoilMoistureI2CSensorCalibratedPump project from github"
 echo ""
 
 BRANCH=$1
@@ -23,9 +23,9 @@ mkdir -p $TEMPORARY_DIR
 
 cd $TEMPORARY_DIR
 
-git clone http://github.com/GreenSense/SoilMoistureSensorCalibratedPump -b $BRANCH && \
+git clone http://github.com/GreenSense/SoilMoistureI2CSensorCalibratedPump -b $BRANCH && \
 
-cd SoilMoistureSensorCalibratedPump && \
+cd SoilMoistureI2CSensorCalibratedPump && \
 sh init.sh && \
 sh build.sh && \
 sh upload.sh && \
@@ -35,5 +35,5 @@ sh test.sh
 rm $TEMPORARY_DIR -rf
 
 echo ""
-echo "Finished testing SoilMoistureSensorCalibratedSerial project from github"
+echo "Finished testing SoilMoistureI2CSensorCalibratedSerial project from github"
 echo ""
