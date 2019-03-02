@@ -1,6 +1,8 @@
 #ifndef SOILMOISTURESENSOR_H_
 #define SOILMOISTURESENSOR_H_
 
+extern bool soilMoistureSensorIsEnabled;
+
 extern int soilMoistureLevelCalibrated;
 extern int soilMoistureLevelRaw;
 
@@ -43,16 +45,18 @@ void setEEPROMSoilMoistureI2CSensorReadingIntervalIsSetFlag();
 void removeEEPROMSoilMoistureI2CSensorReadingIntervalIsSetFlag();
 
 void setDrySoilMoistureCalibrationValue(char* msg);
-
 void setDrySoilMoistureCalibrationValueToCurrent();
-
 void setDrySoilMoistureCalibrationValue(int drySoilMoistureCalibrationValue);
 
 void setWetSoilMoistureCalibrationValue(char* msg);
-
 void setWetSoilMoistureCalibrationValueToCurrent();
-
 void setWetSoilMoistureCalibrationValue(int wetSoilMoistureCalibrationValue);
+
+void setSoilMoistureLevelCalibrated(char* msg);
+void setSoilMoistureLevelCalibrated(long newValue);
+
+void setSoilMoistureLevelRaw(char* msg);
+void setSoilMoistureLevelRaw(long newValue);
 
 void reverseSoilMoistureCalibrationValues();
 

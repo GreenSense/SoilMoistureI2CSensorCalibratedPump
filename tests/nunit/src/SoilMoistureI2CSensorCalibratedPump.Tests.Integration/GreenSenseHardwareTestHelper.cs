@@ -1,167 +1,187 @@
 using System;
 using System.Threading;
 using NUnit.Framework;
+
 namespace SoilMoistureI2CSensorCalibratedPump.Tests.Integration
 {
-	public class GreenSenseHardwareTestHelper : HardwareTestHelper
-	{
-		public int SoilMoistureSimulatorPin = 9;
-		public int SoilMoistureSimulatorPowerPin = 3;
+    public class GreenSenseHardwareTestHelper : HardwareTestHelper
+    {
+        public int SoilMoistureSimulatorPin = 9;
+        public int SoilMoistureSimulatorPowerPin = 3;
 
-		public int DelayAfterTurningSoilMoistureI2CSensorOn = 3;
+        public int DelayAfterTurningSoilMoistureI2CSensorOn = 3;
 
-		public int RawValueMarginOfError = 25;
-		public int CalibratedValueMarginOfError = 3;
-		public double TimeErrorMargin = 0.3;
+        public int RawValueMarginOfError = 25;
+        public int CalibratedValueMarginOfError = 3;
+        public double TimeErrorMargin = 0.4;
 
-		public bool CalibrationIsReversedByDefault = true;
+        public bool CalibrationIsReversedByDefault = true;
 
-		public GreenSenseHardwareTestHelper()
-		{
-		}
+        public GreenSenseHardwareTestHelper ()
+        {
+        }
 
-		#region Enable Devices Functions
-		public override void EnableDevices(bool enableSimulator)
-		{
-			base.EnableDevices(enableSimulator);
+        #region Enable Devices Functions
 
-			PrepareDeviceForTest();
-		}
-		#endregion
+        public override void EnableDevices (bool enableSimulator)
+        {
+            base.EnableDevices (enableSimulator);
 
-		#region Prepare Device Functions
-		public virtual void PrepareDeviceForTest()
-		{
-			PrepareDeviceForTest(true);
-		}
+            PrepareDeviceForTest ();
+        }
 
-		public virtual void PrepareDeviceForTest(bool consoleWriteDeviceOutput)
-		{
-			ResetDeviceSettings();
+        #endregion
 
-			SetDeviceReadInterval(1);
+        #region Prepare Device Functions
 
-			if (CalibrationIsReversedByDefault)
-				ReverseDeviceCalibration();
+        public virtual void PrepareDeviceForTest ()
+        {
+            PrepareDeviceForTest (true);
+        }
 
-			if (consoleWriteDeviceOutput)
-				ReadFromDeviceAndOutputToConsole();
-		}
-		#endregion
+        public virtual void PrepareDeviceForTest (bool consoleWriteDeviceOutput)
+        {
+            ResetDeviceSettings ();
 
-		#region General Device Command Settings
-		public void SendDeviceCommand(string command)
-		{
-			WriteToDevice(command);
+            SetDeviceReadInterval (1);
 
-			WaitForMessageReceived(command);
-		}
+            if (CalibrationIsReversedByDefault)
+                ReverseDeviceCalibration ();
 
-		public void WaitForMessageReceived(string message)
-		{
-			Console.WriteLine("");
-			Console.WriteLine("Waiting for received message");
-			Console.WriteLine("  Message: " + message);
+            if (consoleWriteDeviceOutput)
+                ReadFromDeviceAndOutputToConsole ();
+        }
 
-			var output = String.Empty;
-			var wasMessageReceived = false;
+        #endregion
 
-			var startTime = DateTime.Now;
+        #region General Device Command Settings
 
-			while (!wasMessageReceived)
-			{
-				output += ReadLineFromDevice();
+        public void SendDeviceCommand (string command)
+        {
+            WriteToDevice (command);
 
-				var expectedText = "Received message: " + message;
-				if (output.Contains(expectedText))
-				{
-					wasMessageReceived = true;
+            WaitForMessageReceived (command);
+        }
 
-					Console.WriteLine("  Message was received");
+        public void WaitForMessageReceived (string message)
+        {
+            Console.WriteLine ("");
+            Console.WriteLine ("Waiting for received message");
+            Console.WriteLine ("  Message: " + message);
 
-					ConsoleWriteSerialOutput(output);
-				}
+            var output = String.Empty;
+            var wasMessageReceived = false;
 
-				var hasTimedOut = DateTime.Now.Subtract(startTime).TotalSeconds > TimeoutWaitingForResponse;
-				if (hasTimedOut && !wasMessageReceived)
-				{
-					ConsoleWriteSerialOutput(output);
+            var startTime = DateTime.Now;
 
-					Assert.Fail("Timed out waiting for message received (" + TimeoutWaitingForResponse + " seconds)");
-				}
-			}
-		}
-		#endregion
+            while (!wasMessageReceived) {
+                output += ReadLineFromDevice ();
 
-		#region Specific Device Command Functions
-		public void ResetDeviceSettings()
-		{
-			var cmd = "X";
+                var expectedText = "Received message: " + message;
+                if (output.Contains (expectedText)) {
+                    wasMessageReceived = true;
 
-			Console.WriteLine("");
-			Console.WriteLine("Resetting device default settings...");
-			Console.WriteLine("  Sending '" + cmd + "' command to device");
-			Console.WriteLine("");
+                    Console.WriteLine ("  Message was received");
 
-			SendDeviceCommand(cmd);
-		}
+                    ConsoleWriteSerialOutput (output);
+                }
 
-		public void SetDeviceReadInterval(int numberOfSeconds)
-		{
-			var cmd = "V" + numberOfSeconds;
+                var hasTimedOut = DateTime.Now.Subtract (startTime).TotalSeconds > TimeoutWaitingForResponse;
+                if (hasTimedOut && !wasMessageReceived) {
+                    ConsoleWriteSerialOutput (output);
 
-			Console.WriteLine("");
-			Console.WriteLine("Setting device read interval to " + numberOfSeconds + " second(s)...");
-			Console.WriteLine("  Sending '" + cmd + "' command to device");
-			Console.WriteLine("");
+                    Assert.Fail ("Timed out waiting for message received (" + TimeoutWaitingForResponse + " seconds)");
+                }
+            }
+        }
 
-			SendDeviceCommand(cmd);
-		}
+        #endregion
 
-		public void ReverseDeviceCalibration()
-		{
-			var cmd = "R";
+        #region Specific Device Command Functions
 
-			Console.WriteLine("");
-			Console.WriteLine("Reversing device calibration settings...");
-			Console.WriteLine("  Sending '" + cmd + "' command to device");
-			Console.WriteLine("");
+        public void ResetDeviceSettings ()
+        {
+            var cmd = "X";
 
-			SendDeviceCommand(cmd);
-		}
-		#endregion
+            Console.WriteLine ("");
+            Console.WriteLine ("Resetting device default settings...");
+            Console.WriteLine ("  Sending '" + cmd + "' command to device");
+            Console.WriteLine ("");
 
-		#region Soil Moisture Simulator Functions
-		public void SimulateSoilMoisture(int soilMoisturePercentage)
-		{
-			Console.WriteLine("");
-			Console.WriteLine("Simulating soil moisture percentage");
-			Console.WriteLine("  Sending analog percentage");
-			Console.WriteLine("    PWM pin: " + SoilMoistureSimulatorPin);
-			Console.WriteLine("    Soil Moisture Percentage: " + soilMoisturePercentage + "%");
-			Console.WriteLine("");
+            SendDeviceCommand (cmd);
+        }
 
-			SimulatorClient.AnalogWritePercentage(SoilMoistureSimulatorPin, soilMoisturePercentage);
-		}
-		#endregion
+        public void SetDeviceReadInterval (int numberOfSeconds)
+        {
+            var cmd = "V" + numberOfSeconds;
 
-		#region Wait for Pin Functions
-		public int WaitUntilSoilMoistureI2CSensorPowerPinIs(bool expectedValue)
-		{
-			return WaitUntilSimulatorPinIs("soil moisture sensor power", SoilMoistureSimulatorPowerPin, expectedValue);
-		}
+            Console.WriteLine ("");
+            Console.WriteLine ("Setting device read interval to " + numberOfSeconds + " second(s)...");
+            Console.WriteLine ("  Sending '" + cmd + "' command to device");
+            Console.WriteLine ("");
 
-		public double WaitWhileSoilMoistureI2CSensorPowerPinIs(bool expectedValue)
-		{
-			return WaitWhileSimulatorPinIs("soil moisture sensor power", SoilMoistureSimulatorPowerPin, expectedValue);
-		}
-		#endregion
+            SendDeviceCommand (cmd);
+        }
 
-		#region Assert Simulator Pin Functions
-		public void AssertSoilMoistureI2CSensorPowerPinForDuration(bool expectedValue, int durationInSeconds)
-		{
-			AssertSimulatorPinForDuration("soil moisture sensor power", SoilMoistureSimulatorPowerPin, expectedValue, durationInSeconds);
-		}
-		#endregion
-	}
+        public void ReverseDeviceCalibration ()
+        {
+            var cmd = "R";
+
+            Console.WriteLine ("");
+            Console.WriteLine ("Reversing device calibration settings...");
+            Console.WriteLine ("  Sending '" + cmd + "' command to device");
+            Console.WriteLine ("");
+
+            SendDeviceCommand (cmd);
+        }
+
+        #endregion
+
+        #region Soil Moisture Simulator Functions
+
+        public void SimulateSoilMoisture (int soilMoisturePercentage)
+        {
+            Console.WriteLine ("");
+            Console.WriteLine ("Simulating soil moisture percentage");
+            Console.WriteLine ("  Sending analog percentage");
+            Console.WriteLine ("    PWM pin: " + SoilMoistureSimulatorPin);
+            Console.WriteLine ("    Soil Moisture Percentage: " + soilMoisturePercentage + "%");
+            Console.WriteLine ("");
+
+            // Disable the sensor readings
+            SendDeviceCommand ("S");
+
+            // Set the soil moisture level via a command
+            SendDeviceCommand ("C" + soilMoisturePercentage);
+            SendDeviceCommand ("R" + (1023 / 100 * soilMoisturePercentage));
+
+            // Analog simulator is disabled for the I2C sensors
+            //SimulatorClient.AnalogWritePercentage(SoilMoistureSimulatorPin, soilMoisturePercentage);
+        }
+
+        #endregion
+
+        #region Wait for Pin Functions
+
+        public int WaitUntilSoilMoistureI2CSensorPowerPinIs (bool expectedValue)
+        {
+            return WaitUntilSimulatorPinIs ("soil moisture sensor power", SoilMoistureSimulatorPowerPin, expectedValue);
+        }
+
+        public double WaitWhileSoilMoistureI2CSensorPowerPinIs (bool expectedValue)
+        {
+            return WaitWhileSimulatorPinIs ("soil moisture sensor power", SoilMoistureSimulatorPowerPin, expectedValue);
+        }
+
+        #endregion
+
+        #region Assert Simulator Pin Functions
+
+        public void AssertSoilMoistureI2CSensorPowerPinForDuration (bool expectedValue, int durationInSeconds)
+        {
+            AssertSimulatorPinForDuration ("soil moisture sensor power", SoilMoistureSimulatorPowerPin, expectedValue, durationInSeconds);
+        }
+
+        #endregion
+    }
 }

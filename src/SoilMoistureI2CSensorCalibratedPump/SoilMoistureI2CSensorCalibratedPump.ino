@@ -116,8 +116,18 @@ void checkCommand()
         Serial.println("Toggling IsDebug");
         isDebugMode = !isDebugMode;
         break;
+      //case 'R':
+      //  reverseSoilMoistureCalibrationValues();
+      //  break;
+      // The following are only used for automated testing to bypass the sensor
+      case 'C':
+        setSoilMoistureLevelCalibrated(msg);
+        break;
       case 'R':
-        reverseSoilMoistureCalibrationValues();
+        setSoilMoistureLevelRaw(msg);
+        break;
+      case 'S':
+        soilMoistureSensorIsEnabled = false;
         break;
     }
     forceSerialOutput();

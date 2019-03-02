@@ -9,6 +9,8 @@
 #define soilMoistureSensorPin A0
 #define soilMoistureSensorPowerPin 12
 
+bool soilMoistureSensorIsEnabled = true;
+
 bool soilMoistureSensorIsOn = true;
 long lastSensorOnTime = 0;
 int delayAfterTurningSoilMoistureI2CSensorOn = 3 * 1000;
@@ -78,7 +80,7 @@ void takeSoilMoistureI2CSensorReading()
   bool sensorReadingIsDue = lastSoilMoistureI2CSensorReadingTime + secondsToMilliseconds(soilMoistureSensorReadingIntervalInSeconds) < millis()
     || lastSoilMoistureI2CSensorReadingTime == 0;
 
-  if (sensorReadingIsDue)
+  if (sensorReadingIsDue && soilMoistureSensorIsEnabled)
   {
     if (isDebugMode)
       Serial.println("Sensor reading is due");
@@ -91,7 +93,7 @@ void takeSoilMoistureI2CSensorReading()
   
   	bool soilMoistureSensorIsOnAndReady = soilMoistureSensorIsOn && (postSensorOnDelayHasPast || !sensorGetsTurnedOff);
 
-        bool soilMoistureSensorIsOnButSettling = soilMoistureSensorIsOn && !postSensorOnDelayHasPast && sensorGetsTurnedOff;
+    bool soilMoistureSensorIsOnButSettling = soilMoistureSensorIsOn && !postSensorOnDelayHasPast && sensorGetsTurnedOff;
 
 /*    if (isDebugMode)
     {
@@ -210,6 +212,43 @@ double getAverageSoilMoistureI2CSensorReading()
 double calculateSoilMoistureLevel(int soilMoistureSensorReading)
 {
   return map(soilMoistureSensorReading, drySoilMoistureCalibrationValue, wetSoilMoistureCalibrationValue, 0, 100);
+}
+
+/* Soil Moisture */
+void setSoilMoistureLevelCalibrated(char* msg)
+{
+    int value = readInt(msg, 1, strlen(msg)-1);
+
+    setSoilMoistureLevelCalibrated(value);
+}
+
+void setSoilMoistureLevelCalibrated(long newValue)
+{
+  if (isDebugMode)
+  {
+    Serial.print("Set calibrated soil moisture level: ");
+    Serial.println(newValue);
+  }
+
+  soilMoistureLevelCalibrated = newValue;
+}
+
+void setSoilMoistureLevelRaw(char* msg)
+{
+    int value = readInt(msg, 1, strlen(msg)-1);
+
+    setSoilMoistureLevelRaw(value);
+}
+
+void setSoilMoistureLevelRaw(long newValue)
+{
+  if (isDebugMode)
+  {
+    Serial.print("Set raw soil moisture level: ");
+    Serial.println(newValue);
+  }
+
+  soilMoistureLevelRaw = newValue;
 }
 
 /* Reading interval */
